@@ -10,6 +10,10 @@ const
 
   photoRail* = api / "1.1/statuses/media_timeline.json"
 
+  timelineApi = api / "2/timeline"
+  favorites* = timelineApi / "favorites"
+  userSearch* = api / "1.1/users/search.json"
+
   graphql = api / "graphql"
   graphUser* = graphql / "u7wQyGi6oExe8_TRWGMq4Q/UserResultByScreenNameQuery"
   graphUserById* = graphql / "oPppcargziU1uDQHAUmH-A/UserResultByIdQuery"

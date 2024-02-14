@@ -23,6 +23,7 @@ type
     listTweets
     userRestId
     userScreenName
+    favorites
     userTweets
     userTweetsAndReplies
     userMedia
@@ -111,7 +112,7 @@ type
     variants*: seq[VideoVariant]
 
   QueryKind* = enum
-    posts, replies, media, users, tweets, userList
+    posts, replies, media, users, tweets, userList, favorites
 
   Query* = object
     kind*: QueryKind
@@ -276,6 +277,9 @@ type
     redisConns*: int
     redisMaxConns*: int
     redisPassword*: string
+
+    cookieHeader*: string
+    xCsrfToken*: string
 
   Rss* = object
     feed*, cursor*: string
