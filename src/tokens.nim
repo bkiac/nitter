@@ -41,13 +41,11 @@ proc getPoolJson*(): JsonNode =
       let
         maxReqs =
           case api
-          of Api.search: 100000
-          of Api.photoRail: 180
           of Api.timeline: 187
-          of Api.userTweets, Api.userTimeline: 300
-          of Api.userTweetsAndReplies, Api.userRestId,
-             Api.userScreenName, Api.tweetDetail, Api.tweetResult,
-             Api.list, Api.listTweets, Api.listMembers, Api.listBySlug, Api.userMedia: 500
+          of Api.listMembers, Api.listBySlug, Api.list, Api.listTweets,
+             Api.userTweets, Api.userTweetsAndReplies, Api.userMedia,
+             Api.userRestId, Api.userScreenName,
+             Api.tweetDetail, Api.tweetResult, Api.search, Api.favorites: 500
           of Api.userSearch: 900
         reqs = maxReqs - token.apis[api].remaining
 
@@ -161,6 +159,6 @@ proc initTokenPool*(cfg: Config) {.async.} =
   enableLogging = cfg.enableDebug
 
   while true:
-    if tokenPool.countIt(not it.isLimited(Api.userTimeline)) < cfg.minTokens:
+    if tokenPool.countIt(not it.isLimited(Api.timeline)) < cfg.minTokens:
       await poolTokens(min(4, cfg.minTokens - tokenPool.len))
     await sleepAsync(2000)

@@ -40,6 +40,13 @@ proc getMediaQuery*(name: string): Query =
     sep: "OR"
   )
 
+
+proc getFavoritesQuery*(name: string): Query =
+  Query(
+    kind: favorites,
+    fromUser: @[name]
+  )
+
 proc getReplyQuery*(name: string): Query =
   Query(
     kind: replies,
@@ -60,7 +67,7 @@ proc genQueryParam*(query: Query): string =
       param &= "OR "
 
   if query.fromUser.len > 0 and query.kind in {posts, media}:
-    param &= "filter:self_threads OR-filter:replies "
+    param &= "filter:self_threads OR -filter:replies "
 
   if "nativeretweets" notin query.excludes:
     param &= "include:nativeretweets "

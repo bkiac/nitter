@@ -10,24 +10,20 @@ type
   BadClientError* = object of CatchableError
 
   TimelineKind* {.pure.} = enum
-    tweets
-    replies
-    media
+    tweets, replies, media
 
   Api* {.pure.} = enum
     tweetDetail
     tweetResult
-    timeline
-    userTimeline
     photoRail
     search
-    userSearch
     list
     listBySlug
     listMembers
     listTweets
     userRestId
     userScreenName
+    favorites
     userTweets
     userTweetsAndReplies
     userMedia
@@ -35,11 +31,13 @@ type
   RateLimit* = object
     remaining*: int
     reset*: int
+    limited*: bool
+    limitedAt*: int
 
-  Token* = ref object
-    tok*: string
-    init*: Time
-    lastUse*: Time
+  GuestAccount* = ref object
+    id*: int64
+    oauthToken*: string
+    oauthSecret*: string
     pending*: int
     apis*: Table[Api, RateLimit]
 
@@ -54,7 +52,7 @@ type
     userNotFound = 50
     suspended = 63
     rateLimited = 88
-    invalidToken = 89
+    expiredToken = 89
     listIdOrSlug = 112
     tweetNotFound = 144
     tweetNotAuthorized = 179
@@ -63,6 +61,12 @@ type
     noCsrf = 353
     tweetUnavailable = 421
     tweetCensored = 422
+
+  VerifiedType* = enum
+    none = "None"
+    blue = "Blue"
+    business = "Business"
+    government = "Government"
 
   User* = object
     id*: string
@@ -79,7 +83,7 @@ type
     tweets*: int
     likes*: int
     media*: int
-    verified*: bool
+    verifiedType*: VerifiedType
     protected*: bool
     suspended*: bool
     joinDate*: DateTime
@@ -108,7 +112,7 @@ type
     variants*: seq[VideoVariant]
 
   QueryKind* = enum
-    posts, replies, media, users, tweets, userList
+    posts, replies, media, users, tweets, userList, favorites
 
   Query* = object
     kind*: QueryKind
@@ -163,9 +167,10 @@ type
     imageDirectMessage = "image_direct_message"
     audiospace = "audiospace"
     newsletterPublication = "newsletter_publication"
+    jobDetails = "job_details"
     hidden
     unknown
-    
+
   Card* = object
     kind*: CardKind
     url*: string
@@ -272,6 +277,9 @@ type
     redisConns*: int
     redisMaxConns*: int
     redisPassword*: string
+
+    cookieHeader*: string
+    xCsrfToken*: string
 
   Rss* = object
     feed*, cursor*: string

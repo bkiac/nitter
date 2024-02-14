@@ -23,11 +23,11 @@ proc timelineRss*(req: Request; cfg: Config; query: Query): Future[Rss] {.async.
     names = getNames(name)
 
   if names.len == 1:
-    profile = await fetchProfile(after, query, skipRail=true, skipPinned=true)
+    profile = await fetchProfile(after, query, cfg, skipRail=true, skipPinned=true)
   else:
     var q = query
     q.fromUser = names
-    profile.tweets = await getTweetSearch(q, after)
+    profile.tweets = await getGraphTweetSearch(q, after)
     # this is kinda dumb
     profile.user = User(
       username: name,
@@ -76,7 +76,7 @@ proc createRssRouter*(cfg: Config) =
       if rss.cursor.len > 0:
         respRss(rss, "Search")
 
-      let tweets = await getTweetSearch(query, cursor)
+      let tweets = await getGraphTweetSearch(query, cursor)
       rss.cursor = tweets.bottom
       rss.feed = renderSearchRss(tweets.content, query.text, genQueryUrl(query), cfg)
 
@@ -102,7 +102,7 @@ proc createRssRouter*(cfg: Config) =
     get "/@name/@tab/rss":
       cond cfg.enableRss
       cond '.' notin @"name"
-      cond @"tab" in ["with_replies", "media", "search"]
+      cond @"tab" in ["with_replies", "media", "favorites", "search"]
       let
         name = @"name"
         tab = @"tab"
@@ -110,7 +110,8 @@ proc createRssRouter*(cfg: Config) =
           case tab
           of "with_replies": getReplyQuery(name)
           of "media": getMediaQuery(name)
-          # of "search": initQuery(params(request), name=name)
+          of "favorites": getFavoritesQuery(name)
+          of "search": initQuery(params(request), name=name)
           else: Query(fromUser: @[name])
 
       let searchKey = if tab != "search": ""

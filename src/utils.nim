@@ -16,7 +16,8 @@ const
     "twimg.com",
     "abs.twimg.com",
     "pbs.twimg.com",
-    "video.twimg.com"
+    "video.twimg.com",
+    "x.com"
   ]
 
 proc setHmacKey*(key: string) =
@@ -30,7 +31,9 @@ proc getHmac*(data: string): string =
 
 proc getVidUrl*(link: string): string =
   if link.len == 0: return
-  let sig = getHmac(link)
+  let 
+    link = link.replace("cmaf", "fmp4")
+    sig = getHmac(link)
   if base64Media:
     &"/video/enc/{sig}/{encode(link, safe=true)}"
   else:
@@ -57,4 +60,4 @@ proc isTwitterUrl*(uri: Uri): bool =
   uri.hostname in twitterDomains
 
 proc isTwitterUrl*(url: string): bool =
-  parseUri(url).hostname in twitterDomains
+  isTwitterUrl(parseUri(url))
